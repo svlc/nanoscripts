@@ -75,7 +75,7 @@ def refine_file_name(path, opts):
 		name = name.strip()
 		name = re.sub('\s+', ' ', name)
 	if opts['-w'] == 0:
-		name = name.replace(' ', '.')
+		name = re.sub('\s', '.', name)
 
 	new_path = os.path.join(dir_path, name)
 	if name == orig_name:
