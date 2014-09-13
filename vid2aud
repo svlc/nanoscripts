@@ -1,0 +1,93 @@
+#! /usr/bin/env python
+
+import sys, os
+import re
+import subprocess
+import readline
+
+def usage():
+
+	opts = {
+		"-m, --no-metadata": "avoid inserting metadata",
+	}
+
+	size = len(max(opts, key=lambda key: len(key)))
+
+	print("Extract audio track(s) from passed file(s).",
+		  "Usage: " + os.path.basename(__file__) + " [OPTION] FILE1 [FILE2 ...]",
+		  sep='\n')
+
+	for record in opts:
+		  print(("  {0:" + str(size + 2) + "s}{1:s}").format(record, opts[record]))
+
+def check_file_validity(file):
+	# if file is not of regular type
+	if not os.path.isfile(file):
+		if os.path.exists(file):
+			raise Exception('"' + file + '" is not regular file.')
+		else:
+			raise Exception('File "' + file + '" does not exist.')
+
+def get_rl_input(prompt, prefill):
+   readline.set_startup_hook(lambda: readline.insert_text(prefill))
+   try:
+      return input(prompt)
+   finally:
+      readline.set_startup_hook()
+
+def get_metadata(name):
+
+	name = name.strip()
+	name = re.sub('\s+|\.|:', ' ', name)
+	ret = get_rl_input('Enter metadata in the format "artist:title": ', name)
+	if ':' not in ret:
+		raise Exception('No ":" symbol found.')
+	artist, title = ret.split(':')
+	return artist, title
+
+def main():
+
+	if len(sys.argv) == 1:
+		usage()
+		return 1
+	if len(sys.argv) == 2 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
+		usage()
+		return 0
+
+	no_metadata = False
+	if (sys.argv[1] == "-m" or sys.argv[1] == "--no-metadata"):
+		no_metadata = True
+
+	ret = 0
+	for file in sys.argv[1:]:
+		try:
+			check_file_validity(file)
+			dirname = os.path.dirname(file)
+			basename = os.path.basename(file)
+
+			ret = basename.rfind('.')
+			ext_size = len(basename) - ret
+			if ret > 0 and ext_size <= 5:
+				# remove extension
+				dest_name = os.path.splitext(basename)[0]
+			if no_metadata:
+				artist, title = "", ""
+			else:
+				artist, title = get_metadata(dest_name)
+			ls = ['ffmpeg',
+				  '-loglevel', 'error',
+				  '-i', file,
+				  '-acodec', 'libvorbis',
+				  '-vn',
+				  '-metadata', 'artist=' + artist,
+				  '-metadata', 'title=' + title,
+				  os.path.join(dirname, dest_name) + '.ogg']
+			subprocess.call(ls)
+		except Exception as msg:
+			print(msg, file=sys.stderr, flush=True)
+			ret = 1
+
+	return ret
+
+ret = main()
+sys.exit(ret)

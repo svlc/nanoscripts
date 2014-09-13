@@ -20,6 +20,7 @@ Summary
 lang           Create a new programming project.          python3
 norm           Normalize file names.                      python3
 today          Add a timestamp into file name(s).         python3
+vid2aud        Extract audio track out of video file(s).  python3
 =============  =========================================  =================
 
 Installation
@@ -127,3 +128,26 @@ example
 
   $ today --time 'picture.jpg'
   picture_[1970-01-01-09_00].jpg
+
+
+vid2aud
++++++++
+Extract audio track(s) from passed file(s).
+The scripts interactively asks for artist and title metadata in a quick fashion
+(are prefilled based on file's name).
+
+* dependency: ``ffmpeg``
+
+synopsis
+^^^^^^^^
+``lang [OPTION] LANG DIR``
+
+example
+^^^^^^^
+
+.. code:: bash
+
+  # supress metadata query
+  $ vid2aud --no-metadata 'Antonio.Vivaldi-The.Four.Seasons.Spring.webm'
+  $ ls
+  Antonio.Vivaldi-The.Four.Seasons.Spring.webm  Antonio.Vivaldi-The.Four.Seasons.Spring.ogg
