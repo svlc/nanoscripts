@@ -1,0 +1,151 @@
+#! /usr/bin/env python
+
+import sys, os
+import unicodedata
+import re
+
+def usage():
+	opts = {
+		"-d": "disable diacritics removal",
+		"-u": "disable uppercase to lowercase transformation ",
+		"-s": "disable stripping of leading/trailling whitespace" +
+		" and removal of redundant whitespace occurences",
+		"-w": "disable substitution of whitespace for dots",
+		"-r, --recursive": "enable recursive directory processing",
+		"-f, --force": "force non-interactive mode",
+	}
+
+	size = len(max(opts, key=lambda key: len(key)))
+
+	print("Normalize name(s) of file(s), interactively asking about all of them.",
+		  "Usage: " + os.path.basename(__file__) + " [OPTION] FILE1 [FILE2 ...]",
+		  sep='\n')
+	for record in opts:
+		  print(("  {0:" + str(size + 2) + "s}{1:s}").format(record, opts[record]))
+
+def get_confirmation():
+
+	print("Proceed with the operation? [y/n] ", end='')
+	ret = input()
+	if ret != 'y':
+		raise Exception('Did not read "y". Skipping the file.')
+
+def check_file_existence(file):
+
+	if not os.path.exists(file):
+		raise Exception('File "' + file + '" does not exist.')
+
+def parse_argv(argv):
+	opts = { '-d': 0, '-u': 0, '-s': 0, '-w': 0, '-r': 0, '-f': 0 }
+	opt_end_idx = 1
+	for arg in argv:
+		# if option is not recognized
+		if opts.get(arg) == None:
+			if arg == '--':
+				first_file_pos += 1
+			# if argument starts with minus
+			elif arg[0] == '-':
+				raise Exception("Option '" + arg + "' is invalid.")
+			break
+		elif opts[arg] >= 1:
+			raise Exception("Option '" + arg + "' occures more then once.")
+		else:
+			opts[arg] += 1
+			opt_end_idx += 1
+
+	if opts['-d'] and opts['-u'] and opts['-s'] and opts['-w']:
+		raise Exception("All functionality got turned off by the options.")
+		
+	return opts, opt_end_idx
+
+def refine_file_name(path, opts):
+
+	check_file_existence(path)
+	# remove trailing slash if present
+	path = os.path.normpath(path)
+	name = orig_name = os.path.basename(path)
+	dir_path = os.path.dirname(path)
+
+	if opts['-d'] == 0:
+		name = ''.join(c for c in unicodedata.normalize('NFD', name)
+					   if unicodedata.category(c) != 'Mn')
+	if opts['-u'] == 0:
+		name = name.lower()
+	if opts['-s'] == 0:
+		name = name.strip()
+		name = re.sub('\s+', ' ', name)
+	if opts['-w'] == 0:
+		name = name.replace(' ', '.')
+
+	new_path = os.path.join(dir_path, name)
+	if name == orig_name:
+		raise Exception('"' + path + '": Nothing to refine. Skipping the file.')
+	elif os.path.exists(new_path):
+		raise Exception('Destination file name "' + new_path +
+						'" already exists. Skipping the file.')
+	else:
+		print('"', path, '" ::: "', new_path, '". ', sep='', end='')
+	if not opts['-f']:
+		get_confirmation()
+	print('Done.', file=sys.stderr, flush=True)
+	os.rename(path, new_path)
+	return new_path
+
+def main():
+
+	if len(sys.argv) == 1:
+		usage()
+		return 1
+	if len(sys.argv) == 2 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
+		usage()
+		return 0
+
+	try:
+		opts, opt_end_idx = parse_argv(sys.argv[1:])
+	except Exception as msg:
+			print(msg, file=sys.stderr)
+			return 2
+
+	ret = 0
+	files = []
+	open_dirs = []
+	rel_path = "."
+	for name in sys.argv[opt_end_idx:]:
+		if os.path.isdir(name):
+			open_dirs.append(name)
+		else:
+			files.append(name)
+
+	while True:
+		# refine all non-directory names
+		while files:
+			try:
+				path = files.pop(0)
+				refine_file_name(path, opts)
+			except Exception as msg:
+				print(msg, file=sys.stderr, flush=True)
+				ret = 3
+
+		# refine all directory names
+		for idx, dir in enumerate(open_dirs):
+			try:
+				open_dirs[idx] = refine_file_name(dir, opts)
+			except Exception as msg:
+				print(msg, file=sys.stderr, flush=True)
+				ret = 3
+
+		if opts['-r'] and open_dirs:
+				dir_path = open_dirs.pop(0)
+				for name in sorted(os.listdir(dir_path)):
+					path = os.path.join(dir_path, name)
+					if os.path.isdir(path):
+						open_dirs.append(path)
+					else:
+						files.append(path)
+		else:
+			break
+
+	return ret
+
+ret = main()
+sys.exit(ret)

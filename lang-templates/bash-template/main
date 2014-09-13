@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+
+function usage() {
+	printf "Usage: %s\n" "$(basename "$0")";
+	exit "$1";
+}
+
+function main() {
+	if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+		usage 0;
+	elif [ "$#" -eq "0" ]; then
+		usage 1;
+	fi
+
+	argv=( "$@" )
+
+	for file in "${argv[@]}"; do
+			printf "%s\n" "$file";
+	done
+}
+
+main "$@"
+exit 0;

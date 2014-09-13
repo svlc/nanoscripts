@@ -1,0 +1,71 @@
+#! /usr/bin/env python
+
+import sys, os
+
+def usage():
+
+	opts = {
+		"-t, --time": "include hours and minutes",
+	}
+
+	size = len(max(opts, key=lambda key: len(key)))
+
+	print("Prepare a new directory DIR for a specified programming language LANG.",
+		  "Usage: " + os.path.basename(__file__) + " [OPTION] LANG DIR",
+		  sep='\n')
+
+	for record in opts:
+		  print(("  {0:" + str(size + 2) + "s}{1:s}").format(record, opts[record]))
+
+def main():
+
+	if len(sys.argv) == 1:
+		usage()
+		return 1
+
+	dict = {
+		'c': 'C',
+		'cpp': 'C++',
+		'java': 'Java',
+		'rb': 'Ruby',
+		'py': 'Python',
+		'bash': 'BASH',
+		'pl': 'Perl',
+	}
+
+	if len(sys.argv) == 2:
+		if (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
+			usage()
+			return 0
+		if (sys.argv[1] == "-l" or sys.argv[1] == "--list"):
+			for ext, name in sorted(dict.items()):
+				print("'" + ext + "'" + " for: " + name)
+			return 0
+		else:
+			usage()
+			return 1
+	if len(sys.argv) == 3:
+		lang_key = sys.argv[1]
+		if lang_key in dict:
+			import shutil
+			try:
+				src = "lang-templates/" + sys.argv[1] + "-template/"
+				shutil.copytree(src, sys.argv[2])
+				print("Creating " + dict[lang_key] + " project.")
+				# Directories are the same
+			except shutil.Error as e:
+				print('Directory not copied. Error: %s' % e)
+				# Any error saying that the directory doesn't exist
+			except OSError as e:
+				print('Directory not copied. Error: %s' % e)
+		else:
+			print("'" + sys.argv[1] + "'" + "is not a supported language.")
+			return 1
+	else:
+		usage()
+		return 1
+
+ret = 0
+
+ret = main()
+sys.exit(ret)
