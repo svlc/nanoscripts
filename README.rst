@@ -15,14 +15,14 @@ Intro
 Summary
 -------
 
-=============  =================================================  ==============
-**name**       **purpose**                                        **language**
+=============  =================================================  ================
+**name**       **purpose**                                        **dependencies**
 lang           Create a new programming project.                  python3
 norm           Normalize file names.                              python3
 today          Add a timestamp into file name(s).                 python3
-vid2aud        Extract audio track out of video file(s).          python3
+vid2aud        Extract audio track out of video file(s).          python3, ffmpeg
 win2utf        Transform file(s) with win-1250 encoding to UTF8.  BASH
-=============  =================================================  ==============
+=============  =================================================  ================
 
 Installation
 ------------
