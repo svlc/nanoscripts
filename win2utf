@@ -1,0 +1,35 @@
+#! /usr/bin/env bash
+
+function usage() {
+	printf "Transform file(s) with non-standard win-1250 encoding to UTF8.\n"
+	printf "The original file(s) get(s) backed up.\n"
+	printf "Usage: %s FILE1 [FILE2 ...]\n" "$(basename "$0")";
+	exit "$1";
+}
+
+function main() {
+	if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+		usage 0;
+	elif [ "$#" -eq "0" ]; then
+		usage 1;
+	fi
+
+	for file in "$@"; do
+		if [ ! -f "$file" ]; then
+			printf "File \"%s\" does not exist.\n" "$file";
+			continue
+		fi
+		if [ -f "${file}.old" ]; then
+			printf "Cannot create backup version, \"%s\" already exists.\n" "${file}.old";
+			continue
+		fi
+
+		mv "$file" "${file}.old"
+		iconv -f cp1250 -t utf-8 "${file}.old" > "${file}";
+		# set the old file's timestamp
+		touch -r "${file}.old" "${file}";
+	done
+}
+
+main "$@"
+exit 0;

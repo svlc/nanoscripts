@@ -15,13 +15,14 @@ Intro
 Summary
 -------
 
-=============  =========================================  =================
-**name**       **purpose**                                **language**
-lang           Create a new programming project.          python3
-norm           Normalize file names.                      python3
-today          Add a timestamp into file name(s).         python3
-vid2aud        Extract audio track out of video file(s).  python3
-=============  =========================================  =================
+=============  =================================================  ==============
+**name**       **purpose**                                        **language**
+lang           Create a new programming project.                  python3
+norm           Normalize file names.                              python3
+today          Add a timestamp into file name(s).                 python3
+vid2aud        Extract audio track out of video file(s).          python3
+win2utf        Transform file(s) with win-1250 encoding to UTF8.  BASH
+=============  =================================================  ==============
 
 Installation
 ------------
@@ -151,3 +152,23 @@ example
   $ vid2aud --no-metadata 'Antonio.Vivaldi-The.Four.Seasons.Spring.webm'
   $ ls
   Antonio.Vivaldi-The.Four.Seasons.Spring.webm  Antonio.Vivaldi-The.Four.Seasons.Spring.ogg
+
+
+win2utf
++++++++
+
+Transform file(s) with non-standard win-1250 encoding to UTF8.
+The original file(s) get(s) backed up.
+
+synopsis
+^^^^^^^^
+``win2utf FILE1 [FILE2 ...]``
+
+example
+^^^^^^^
+
+.. code:: bash
+
+  $ win2utf 'cz.srt' 'sk.srt' 'hu.srt' 'si.srt' 'ba.srt' 'hr.srt'
+  $ ls
+  cz.srt  cz.srt.old  sk.srt  sk.srt.old  hu.srt  hu.srt.old  si.srt  si.srt.old  ba.srt  ba.srt.old  hr.srt  hr.srt.old
