@@ -83,6 +83,7 @@ norm
 Normalize file name(s) by dealing e.g. with whitespace or diacritics.
 
 * By default, interactive mode is turned on, so every filename change needs to be confirmed.
+* ``-r`` or ``--recursive`` option allows recursive directory processing
 
 synopsis
 ^^^^^^^^
