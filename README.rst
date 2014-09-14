@@ -2,6 +2,9 @@
 nanoscripts
 ***********
 
+.. image:: nanoscripts.png
+   :align: center
+
 Intro
 -----
 * *nanoscripts* is a set of small scripts that come in handy for (almost) every power user.
