@@ -81,7 +81,8 @@ norm
 ++++
 
 Normalize file name(s) by dealing e.g. with whitespace or diacritics.
-By default, interactive mode is on, so every filename change needs to be confirmed.
+
+* By default, interactive mode is turned on, so every filename change needs to be confirmed.
 
 synopsis
 ^^^^^^^^
@@ -92,10 +93,10 @@ example
 
 .. code:: bash
 
-  # remove upper-case, diacritics and all whitespace characters including a trailing ones
+  # Normalize upper-case, diacritic and whitespace characters
   $ norm 'file WITH a really  bad naming ' 'Résumé file'
-  $ ls
-  file.with.a.really.bad.naming  resume.file
+  $ ls --quote-name
+  "file.with.a.really.bad.naming"  "resume.file"
 
 .. code:: bash
 
@@ -152,9 +153,9 @@ example
 .. code:: bash
 
   # supress metadata query
-  $ vid2aud --no-metadata 'Antonio.Vivaldi-The.Four.Seasons.Spring.webm'
+  $ vid2aud --no-metadata 'A.Vivaldi-The.Four.Seasons.Spring.webm'
   $ ls
-  Antonio.Vivaldi-The.Four.Seasons.Spring.webm  Antonio.Vivaldi-The.Four.Seasons.Spring.ogg
+  A.Vivaldi-The.Four.Seasons.Spring.webm  A.Vivaldi-The.Four.Seasons.Spring.ogg
 
 
 win2utf
@@ -174,4 +175,5 @@ example
 
   $ win2utf 'cz.srt' 'sk.srt' 'hu.srt' 'si.srt' 'ba.srt' 'hr.srt'
   $ ls
-  cz.srt  cz.srt.old  sk.srt  sk.srt.old  hu.srt  hu.srt.old  si.srt  si.srt.old  ba.srt  ba.srt.old  hr.srt  hr.srt.old
+  cz.srt  cz.srt.old  sk.srt  sk.srt.old  hu.srt  hu.srt.old
+  si.srt  si.srt.old  ba.srt  ba.srt.old  hr.srt  hr.srt.old
