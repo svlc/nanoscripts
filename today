@@ -28,7 +28,7 @@ def main():
 			return 0
 
 	if (sys.argv[1] == "-t" or sys.argv[1] == "--time"):
-		time = strftime("%Y-%m-%d_%H:%M", gmtime())
+		time = strftime("%Y-%m-%d_%H-%M", gmtime())
 		sys.argv.pop(1)
 	else:
 		time = strftime("%Y-%m-%d", gmtime())
