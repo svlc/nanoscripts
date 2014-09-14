@@ -2,7 +2,7 @@
 nanoscripts
 ***********
 
-.. image:: nanoscripts.png
+.. image:: figures/nanoscripts.png
    :align: center
 
 Intro
