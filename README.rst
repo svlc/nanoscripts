@@ -8,7 +8,7 @@ nanoscripts
 Intro
 -----
 * *nanoscripts* is a set of small scripts that come in handy for (almost) every power user.
-* Invoke the script with ``-h`` or ``--help`` option for detailed info.
+* Invoke any script with ``-h`` or ``--help`` option for a detailed info.
 
 **Table of Contents**
 
@@ -80,7 +80,7 @@ example
 norm
 ++++
 
-Normalize file name(s) by dealing e.g. with whitespace or diacritics.
+Normalize file name(s) by dealing with e.g. whitespace or diacritics.
 
 * By default, interactive mode is turned on, so every filename change needs to be confirmed.
 * ``-r`` or ``--recursive`` option allows recursive directory processing
@@ -95,9 +95,9 @@ example
 .. code:: bash
 
   # Normalize upper-case, diacritic and whitespace characters
-  $ norm 'file WITH a really  bad naming ' 'Résumé file'
+  $ norm 'file WITH a really  bad name ' 'Résumé file'
   $ ls --quote-name
-  "file.with.a.really.bad.naming"  "resume.file"
+  "file.with.a.really.bad.name"  "resume.file"
 
 .. code:: bash
 
