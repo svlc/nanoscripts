@@ -98,16 +98,17 @@ example
   $ norm 'file WITH a really  bad name ' 'Résumé file'
   $ ls --quote-name
   "file.with.a.really.bad.name"  "resume.file"
-
-.. code:: bash
-
   $ tree
   ├── Déjà vu file
   └── dir
       └── HELLO WORLD
 
-  # disable diacritics removal and upper-case to lower-case transformation
+.. code:: bash
+
+  # disable diacritics removal and upper-case
+  # to lower-case transformation
   $ norm --recursive -d -u 'Déjà vu file' 'dir/'
+  $ tree
   ├── Déjà.vu.file
   └── dir
       └── HELLO.WORLD
