@@ -4,24 +4,17 @@ import sys, os
 import unicodedata
 import re
 
-def usage():
-	opts = {
-		"-d": "disable diacritics removal",
-		"-u": "disable uppercase to lowercase transformation ",
-		"-s": "disable stripping of leading/trailling whitespace" +
-		" and removal of redundant whitespace occurences",
-		"-w": "disable substitution of whitespace for dots",
-		"-r, --recursive": "enable recursive directory processing",
-		"-f, --force": "force non-interactive mode",
-	}
-
-	size = len(max(opts, key=lambda key: len(key)))
+def usage(opts):
+	# join short and long options into one string
+	opt_ls = [ ', '.join(rec) for rec in opts ]
+	size = len(max(opt_ls, key=len))
 
 	print("Normalize name(s) of file(s), interactively asking about all of them.",
 		  "Usage: " + os.path.basename(__file__) + " [OPTION] FILE1 [FILE2 ...]",
 		  sep='\n')
-	for record in opts:
-		  print(("  {0:" + str(size + 2) + "s}{1:s}").format(record, opts[record]))
+	for rec, val in opts.items():
+		print(("  {0:" + str(size + 2) + "s}{1:s}")
+			  .format(', '.join(rec), val['help']))
 
 def get_confirmation():
 
@@ -35,28 +28,40 @@ def check_file_existence(file):
 	if not os.path.exists(file):
 		raise Exception('File "' + file + '" does not exist.')
 
-def parse_argv(argv):
-	opts = { '-d': 0, '-u': 0, '-s': 0, '-w': 0, '-r': 0, '-f': 0 }
+def get_opt_record(opts, opt):
+	for rec in opts:
+		if opt in rec:
+			return rec
+	return None
+
+def parse_argv(argv, opts):
+
+	# generate all "short optarg, option presence count" dictionary pairs
+	opts_occur = dict()
+	for rec, val in opts.items():
+		opts_occur[rec[0]] = val['cnt']
+
 	opt_end_idx = 1
 	for arg in argv:
 		# if option is not recognized
-		if opts.get(arg) == None:
+		rec = get_opt_record(opts, arg)
+		if rec == None:
 			if arg == '--':
 				first_file_pos += 1
 			# if argument starts with minus
 			elif arg[0] == '-':
 				raise Exception("Option '" + arg + "' is invalid.")
 			break
-		elif opts[arg] >= 1:
+		elif opts_occur[rec[0]] >= 1:
 			raise Exception("Option '" + arg + "' occures more then once.")
 		else:
-			opts[arg] += 1
+			opts_occur[rec[0]] += 1
 			opt_end_idx += 1
 
-	if opts['-d'] and opts['-u'] and opts['-s'] and opts['-w']:
+	if opts_occur['-d'] and opts_occur['-u'] and opts_occur['-s'] and opts_occur['-w']:
 		raise Exception("All functionality got turned off by the options.")
-		
-	return opts, opt_end_idx
+
+	return opts_occur, opt_end_idx
 
 def refine_file_name(path, opts):
 
@@ -93,15 +98,25 @@ def refine_file_name(path, opts):
 
 def main():
 
+	opts = {
+		("-d",): { 'help': "disable diacritics removal", 'cnt': 0 },
+		("-u",): { 'help': "disable uppercase to lowercase transformation ", 'cnt': 0 },
+		("-s",): { 'help': "disable stripping of leading/trailling whitespace "
+				   + "and removal of redundant whitespace occurences", 'cnt': 0 },
+		("-w",): { 'help': "disable substitution of whitespace for dots", 'cnt': 0 },
+		("-r", "--recursive"): { 'help': "enable recursive directory processing", 'cnt': 0 },
+		("-f", "--force"): { 'help':  "force non-interactive mode", 'cnt': 0 },
+	}
+
 	if len(sys.argv) == 1:
-		usage()
+		usage(opts)
 		return 1
 	if len(sys.argv) == 2 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
 		usage()
 		return 0
 
 	try:
-		opts, opt_end_idx = parse_argv(sys.argv[1:])
+		opts_occur, opt_end_idx = parse_argv(sys.argv[1:], opts)
 	except Exception as msg:
 			print(msg, file=sys.stderr)
 			return 2
@@ -121,7 +136,7 @@ def main():
 		while files:
 			try:
 				path = files.pop(0)
-				refine_file_name(path, opts)
+				refine_file_name(path, opts_occur)
 			except Exception as msg:
 				print(msg, file=sys.stderr, flush=True)
 				ret = 3
@@ -129,12 +144,12 @@ def main():
 		# refine all directory names
 		for idx, dir in enumerate(open_dirs):
 			try:
-				open_dirs[idx] = refine_file_name(dir, opts)
+				open_dirs[idx] = refine_file_name(dir, opts_occur)
 			except Exception as msg:
 				print(msg, file=sys.stderr, flush=True)
 				ret = 3
 
-		if opts['-r'] and open_dirs:
+		if opts_occur['-r'] and open_dirs:
 				dir_path = open_dirs.pop(0)
 				for name in sorted(os.listdir(dir_path)):
 					path = os.path.join(dir_path, name)
