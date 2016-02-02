@@ -140,14 +140,14 @@ example
 vid2aud
 +++++++
 Extract audio track(s) from passed file(s).
-The scripts interactively asks for artist and title metadata in a quick fashion
+The script interactively asks for artist and title metadata in a quick fashion
 (are prefilled based on file's name).
 
 * dependency: ``ffmpeg``
 
 synopsis
 ^^^^^^^^
-``lang [OPTION] LANG DIR``
+``vid2aud [OPTION] FILE1 [FILE2 ...]``
 
 example
 ^^^^^^^
