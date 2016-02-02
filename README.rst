@@ -154,10 +154,10 @@ example
 
 .. code:: bash
 
-  # supress metadata query
-  $ vid2aud --no-metadata 'A.Vivaldi-The.Four.Seasons.Spring.webm'
+  # supress metadata query, set output format to ogg vorbis
+  $ vid2aud --no-metadata --format 'ogg' 'The.Four.Seasons.Spring.webm'
   $ ls
-  A.Vivaldi-The.Four.Seasons.Spring.webm  A.Vivaldi-The.Four.Seasons.Spring.ogg
+  A.Vivaldi-The.Four.Seasons.Spring.webm The.Four.Seasons.Spring.ogg
 
 
 win2utf
