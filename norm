@@ -3,18 +3,7 @@
 import sys, os
 import unicodedata
 import re
-
-def usage(opts):
-	# join short and long options into one string
-	opt_ls = [ ', '.join(rec) for rec in opts ]
-	size = len(max(opt_ls, key=len))
-
-	print("Normalize name(s) of file(s), interactively asking about all of them.",
-		  "Usage: " + os.path.basename(__file__) + " [OPTION] FILE1 [FILE2 ...]",
-		  sep='\n')
-	for rec, val in opts.items():
-		print(("  {0:" + str(size + 2) + "s}{1:s}")
-			  .format(', '.join(rec), val['help']))
+from optparse import OptionParser
 
 def get_confirmation():
 
@@ -34,34 +23,28 @@ def get_opt_record(opts, opt):
 			return rec
 	return None
 
-def parse_argv(argv, opts):
+def parse_argv():
 
-	# generate all "short optarg, option presence count" dictionary pairs
-	opts_occur = dict()
-	for rec, val in opts.items():
-		opts_occur[rec[0]] = val['cnt']
+	p = OptionParser(usage = "%prog [OPTION] FILE1 [FILE2 ...]")
+	p.add_option("-d", action="count", dest="diacritics", default=0,
+				 help="disable diacritics removal")
+	p.add_option("-u", action="count", dest="uppercase", default=0,
+				 help="disable uppercase to lowercase transformation")
+	p.add_option("-s", action="count", dest="stripping", default=0,
+				 help="disable stripping of leading/trailling whitespace"
+				 + "and removal of redundant whitespace occurences")
+	p.add_option("-w", action="count", dest="whitespace", default=0,
+				 help="disable substitution of whitespace for dots")
+	p.add_option("-r", "--recursive", action="count", dest="recursive", default=0,
+				 help="enable recursive directory processing")
+	p.add_option("-f", "--force", action="count", dest="force", default=0,
+				 help="force non-interactive mode")
 
-	opt_end_idx = 1
-	for arg in argv:
-		# if option is not recognized
-		rec = get_opt_record(opts, arg)
-		if rec == None:
-			if arg == '--':
-				first_file_pos += 1
-			# if argument starts with minus
-			elif arg[0] == '-':
-				raise Exception("Option '" + arg + "' is invalid.")
-			break
-		elif opts_occur[rec[0]] >= 1:
-			raise Exception("Option '" + arg + "' occures more then once.")
-		else:
-			opts_occur[rec[0]] += 1
-			opt_end_idx += 1
-
-	if opts_occur['-d'] and opts_occur['-u'] and opts_occur['-s'] and opts_occur['-w']:
+	opts, args = p.parse_args()
+	if opts.diacritics and opts.uppercase and opts.stripping and opts.whitespace:
 		raise Exception("All functionality got turned off by the options.")
 
-	return opts_occur, opt_end_idx
+	return opts, args
 
 def refine_file_name(path, opts):
 
@@ -71,15 +54,15 @@ def refine_file_name(path, opts):
 	name = orig_name = os.path.basename(path)
 	dir_path = os.path.dirname(path)
 
-	if opts['-d'] == 0:
+	if opts.diacritics == 0:
 		name = ''.join(c for c in unicodedata.normalize('NFD', name)
 					   if unicodedata.category(c) != 'Mn')
-	if opts['-u'] == 0:
+	if opts.uppercase == 0:
 		name = name.lower()
-	if opts['-s'] == 0:
+	if opts.stripping == 0:
 		name = name.strip()
 		name = re.sub('\s+', ' ', name)
-	if opts['-w'] == 0:
+	if opts.whitespace == 0:
 		name = re.sub('\s', '.', name)
 
 	new_path = os.path.join(dir_path, name)
@@ -90,7 +73,7 @@ def refine_file_name(path, opts):
 						'" already exists. Skipping the file.')
 	else:
 		print('"', path, '" ::: "', new_path, '". ', sep='', end='')
-	if not opts['-f']:
+	if not opts.force:
 		get_confirmation()
 	print('Done.', file=sys.stderr, flush=True)
 	os.rename(path, new_path)
@@ -98,25 +81,8 @@ def refine_file_name(path, opts):
 
 def main():
 
-	opts = {
-		("-d",): { 'help': "disable diacritics removal", 'cnt': 0 },
-		("-u",): { 'help': "disable uppercase to lowercase transformation ", 'cnt': 0 },
-		("-s",): { 'help': "disable stripping of leading/trailling whitespace "
-				   + "and removal of redundant whitespace occurences", 'cnt': 0 },
-		("-w",): { 'help': "disable substitution of whitespace for dots", 'cnt': 0 },
-		("-r", "--recursive"): { 'help': "enable recursive directory processing", 'cnt': 0 },
-		("-f", "--force"): { 'help':  "force non-interactive mode", 'cnt': 0 },
-	}
-
-	if len(sys.argv) == 1:
-		usage(opts)
-		return 1
-	if len(sys.argv) == 2 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
-		usage()
-		return 0
-
 	try:
-		opts_occur, opt_end_idx = parse_argv(sys.argv[1:], opts)
+		opts, args = parse_argv()
 	except Exception as msg:
 			print(msg, file=sys.stderr)
 			return 2
@@ -125,7 +91,7 @@ def main():
 	files = []
 	open_dirs = []
 	rel_path = "."
-	for name in sys.argv[opt_end_idx:]:
+	for name in args:
 		if os.path.isdir(name):
 			open_dirs.append(name)
 		else:
@@ -136,7 +102,7 @@ def main():
 		while files:
 			try:
 				path = files.pop(0)
-				refine_file_name(path, opts_occur)
+				refine_file_name(path, opts)
 			except Exception as msg:
 				print(msg, file=sys.stderr, flush=True)
 				ret = 3
@@ -144,12 +110,12 @@ def main():
 		# refine all directory names
 		for idx, dir in enumerate(open_dirs):
 			try:
-				open_dirs[idx] = refine_file_name(dir, opts_occur)
+				open_dirs[idx] = refine_file_name(dir, opts)
 			except Exception as msg:
 				print(msg, file=sys.stderr, flush=True)
 				ret = 3
 
-		if opts_occur['-r'] and open_dirs:
+		if opts.recursive and open_dirs:
 				dir_path = open_dirs.pop(0)
 				for name in sorted(os.listdir(dir_path)):
 					path = os.path.join(dir_path, name)
