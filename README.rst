@@ -94,20 +94,24 @@ example
 
 .. code:: bash
 
-  # Normalize upper-case, diacritic and whitespace characters
+  # example 1: normalize upper-case, diacritic and whitespace chars
   $ norm 'file WITH a really  bad name ' 'Résumé file'
   $ ls --quote-name
   "file.with.a.really.bad.name"  "resume.file"
+
+.. code:: bash
+
+  # example 2: disable diacritics removal and upper-case
+  # to lower-case transformation
+  $ norm --recursive -d -u 'Déjà vu file' 'dir/'
+
+  # original file structure
   $ tree
   ├── Déjà vu file
   └── dir
       └── HELLO WORLD
 
-.. code:: bash
-
-  # disable diacritics removal and upper-case
-  # to lower-case transformation
-  $ norm --recursive -d -u 'Déjà vu file' 'dir/'
+  # normalized file structure
   $ tree
   ├── Déjà.vu.file
   └── dir
