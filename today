@@ -28,6 +28,9 @@ def main():
 			return 0
 
 	if (sys.argv[1] == "-t" or sys.argv[1] == "--time"):
+		if len(sys.argv) == 2:
+			usage()
+			return 1
 		time = strftime("%Y-%m-%d_%H-%M", gmtime())
 		sys.argv.pop(1)
 	else:
