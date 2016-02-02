@@ -4,21 +4,7 @@ import sys, os
 import re
 import subprocess
 import readline
-
-def usage():
-
-	opts = {
-		"-m, --no-metadata": "avoid inserting metadata",
-	}
-
-	size = len(max(opts, key=lambda key: len(key)))
-
-	print("Extract audio track(s) from passed file(s).",
-		  "Usage: " + os.path.basename(__file__) + " [OPTION] FILE1 [FILE2 ...]",
-		  sep='\n')
-
-	for record in opts:
-		  print(("  {0:" + str(size + 2) + "s}{1:s}").format(record, opts[record]))
+from optparse import OptionParser
 
 def check_file_validity(file):
 	# if file is not of regular type
@@ -45,47 +31,61 @@ def get_metadata(name):
 	artist, title = ret.split(':')
 	return artist, title
 
+def parse_argv():
+
+	p = OptionParser(usage = "%prog [OPTION] FILE1 [FILE2 ...]")
+	p.add_option("-f", "--format", action="store", dest="format",
+				 metavar="FORMAT", default='mp3',
+				 help="Select output format (mp3 / ogg), default is mp3.")
+	p.add_option("-n", "--no-metadata",
+				 action="count", dest="metadata", default=0,
+				 help="Avoid metadata query.")
+
+	opts, args = p.parse_args()
+
+	if not args:
+		raise Exception("Missing a FILE argument.")
+
+	allowed_codecs = { 'mp3': 'libmp3lame', 'ogg': 'libvorbis' }
+	codec = allowed_codecs.get(opts.format)
+	if not codec:
+		raise Exception("Unrecognized output format \'" + opts.format + "\'.")
+
+	return opts, args, codec
+	
+
 def main():
 
-	if len(sys.argv) == 1:
-		usage()
-		return 1
-	if len(sys.argv) == 2 and (sys.argv[1] == "-h" or sys.argv[1] == "--help"):
-		usage()
-		return 0
+	try:
+		opts, files, codec = parse_argv()
 
-	no_metadata = False
-	if (sys.argv[1] == "-m" or sys.argv[1] == "--no-metadata"):
-		no_metadata = True
-
-	ret = 0
-	for file in sys.argv[1:]:
-		try:
+		ret = 0
+		for file in files:
 			check_file_validity(file)
 			dirname = os.path.dirname(file)
 			basename = os.path.basename(file)
-
+	
 			ret = basename.rfind('.')
 			ext_size = len(basename) - ret
 			if ret > 0 and ext_size <= 5:
 				# remove extension
 				dest_name = os.path.splitext(basename)[0]
-			if no_metadata:
+			if opts.metadata == 0:
 				artist, title = "", ""
 			else:
 				artist, title = get_metadata(dest_name)
 			ls = ['ffmpeg',
 				  '-loglevel', 'error',
 				  '-i', file,
-				  '-acodec', 'libvorbis',
+				  '-acodec', codec,
 				  '-vn',
 				  '-metadata', 'artist=' + artist,
 				  '-metadata', 'title=' + title,
-				  os.path.join(dirname, dest_name) + '.ogg']
+				  os.path.join(dirname, dest_name) + '.' + opts.format ]
 			subprocess.call(ls)
-		except Exception as msg:
-			print(msg, file=sys.stderr, flush=True)
-			ret = 1
+	except Exception as msg:
+		print(msg, file=sys.stderr, flush=True)
+		ret = 1
 
 	return ret
 
