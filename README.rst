@@ -39,7 +39,7 @@ UNIX-like systems
 .. code:: bash
 
   $ mkdir ~/bin
-  $ cp lang lang-templates norm today vid2aud win2utf ~/bin
+  $ cp -r lang lang-templates norm today vid2aud win2utf ~/bin
   
 * add ``~bin/`` to the ``PATH`` variable (in the ``.bashrc`` file)
 
