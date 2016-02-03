@@ -7,7 +7,7 @@ import shutil
 def usage():
 
 	opts = {
-		"-t, --time": "include hours and minutes",
+		"-l, --list": "list all available languages",
 	}
 
 	size = len(max(opts, key=lambda key: len(key)))
