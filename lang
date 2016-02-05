@@ -25,7 +25,7 @@ def main():
 		usage()
 		return 1
 
-	dict = {
+	langs = {
 		'c': 'C',
 		'cpp': 'C++',
 		'java': 'Java',
@@ -40,7 +40,7 @@ def main():
 			usage()
 			return 0
 		if (sys.argv[1] == "-l" or sys.argv[1] == "--list"):
-			for ext, name in sorted(dict.items()):
+			for ext, name in sorted(langs.items()):
 				print("'" + ext + "'" + " for: " + name)
 			return 0
 		else:
@@ -48,11 +48,11 @@ def main():
 			return 1
 	if len(sys.argv) == 3:
 		lang_key = sys.argv[1]
-		if lang_key in dict:
+		if lang_key in langs:
 			try:
 				src = "lang-templates/" + sys.argv[1] + "-template/"
 				shutil.copytree(src, sys.argv[2])
-				print("Creating " + dict[lang_key] + " project.")
+				print("Creating " + langs[lang_key] + " project.")
 				# Directories are the same
 			except OSError as e:
 				print('An error during copying:', e)
