@@ -161,7 +161,7 @@ example
   # supress metadata query, set output format to ogg vorbis
   $ vid2aud --no-metadata --format 'ogg' 'The.Four.Seasons.Spring.webm'
   $ ls
-  A.Vivaldi-The.Four.Seasons.Spring.webm The.Four.Seasons.Spring.ogg
+  The.Four.Seasons.Spring.ogg  The.Four.Seasons.Spring.webm
 
 
 win2utf
