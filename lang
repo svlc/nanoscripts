@@ -50,7 +50,8 @@ def main():
 		lang_key = sys.argv[1]
 		if lang_key in langs:
 			try:
-				src = "lang-templates/" + sys.argv[1] + "-template/"
+				src = os.path.dirname(os.path.realpath(__file__))\
+					  + "/lang-templates/" + sys.argv[1] + "-template/"
 				shutil.copytree(src, sys.argv[2])
 				print("Creating " + langs[lang_key] + " project.")
 				# Directories are the same
