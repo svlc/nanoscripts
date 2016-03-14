@@ -38,7 +38,7 @@ def parse_argv():
 				 metavar="FORMAT", default='mp3',
 				 help="Select output format (mp3 / ogg), default is mp3.")
 	p.add_option("-n", "--no-metadata",
-				 action="count", dest="metadata", default=0,
+				 action="count", dest="no_metadata", default=0,
 				 help="Avoid metadata query.")
 
 	opts, args = p.parse_args()
@@ -70,7 +70,7 @@ def main():
 			if ret > 0 and ext_size <= 5:
 				# remove extension
 				dest_name = os.path.splitext(basename)[0]
-			if opts.metadata == 0:
+			if opts.no_metadata == 1:
 				artist, title = "", ""
 			else:
 				artist, title = get_metadata(dest_name)
