@@ -138,6 +138,7 @@ example
 .. code:: bash
 
   $ today --time 'picture.jpg'
+  $ ls
   picture_[1970-01-01_09-00].jpg
 
 
