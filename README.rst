@@ -4,6 +4,9 @@ nanoscripts
 
 .. image:: figures/nanoscripts.png
    :align: center
+   :height: 117px
+   :width: 483px
+	   
 
 Intro
 -----

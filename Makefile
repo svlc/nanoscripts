@@ -11,7 +11,7 @@ PDF_FILES = $(patsubst %.rst,%.pdf,$(IN_FILES))
 .PHONY: all clean
 all   : $(HTML_FILES) $(PDF_FILES)
 
-html:	$(HTML_FILES)
+html:	$(HTML_FILES) figures/nanoscripts.png
 
 pdf:	$(PDF_FILES)
 
@@ -20,6 +20,9 @@ pdf:	$(PDF_FILES)
 
 %.html: %.rst
 	rst2html2 $(<) > $(@)
+
+figures/nanoscripts.png:	figures/nanoscripts.svg
+	inkscape -f $< -e $(@) -h "117"
 
 clean :
 	rm -f $(HTML_FILES) $(PDF_FILES)
