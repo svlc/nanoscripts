@@ -1,0 +1,42 @@
+#! /usr/bin/env bash
+
+function usage() {
+	printf "Remove all relative link's {html,htm,php} suffix from passed web files.\n"
+	printf "Also replace index.(html,htm,php) with the '/' character\n"
+	printf "Usage: %s [FILE1] [FILE2 ...]\n" "$(basename "$0")";
+	printf "With no FILE, stdin and stdout is used.\n";
+	printf "Note that if some FILE(s) are passed, in place processing is done.\n";
+	exit "$1";
+}
+
+function run_sed()
+{
+	if [ "$#" -eq "0" ]; then
+		file="";
+		in_place="";
+	else
+		file=$1;
+		in_place=" -i";
+	fi
+
+	# remove suffix from all relative links, replace "index" with the '/' character
+	sed -r${in_place} -e 's/(href="?[a-zA-Z0-9/-]+)\.(html|htm|php)/\1/g' -e 's/(href="?)([a-zA-Z0-9/-]*[a-zA-Z0-9-])*\/?index/\1\2\//g' $file
+}
+
+function main() {
+	if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+		usage 0;
+	elif [ "$#" -eq "0" ]; then
+		run_sed;
+	fi
+
+	for file in "$@"; do
+		if [ ! -f "$file" ]; then
+			printf "File \"%s\" does not exist.\n" "$file";
+			continue
+		fi
+		run_sed $file
+	done
+}
+main "$@"
+exit 0;

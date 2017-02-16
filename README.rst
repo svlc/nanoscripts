@@ -18,14 +18,15 @@ Intro
 Summary
 -------
 
-=============  =================================================  ================
-**name**       **purpose**                                        **dependencies**
-lang           Create a new programming project.                  python3
-norm           Normalize file names.                              python3
-today          Add a timestamp into file name(s).                 python3
-vid2aud        Extract audio track out of video file(s).          python3, ffmpeg
-win2utf        Transform file(s) with win-1250 encoding to UTF8.  BASH
-=============  =================================================  ================
+=================  =====================================================================  ================
+**name**           **purpose**                                                            **dependencies**
+lang               Create a new programming project.                                      python3
+norm               Normalize file names.                                                  python3
+suffix_remover     Remove relative link's {html,htm,php} suffix from passed web files.    BASH
+today              Add a timestamp into file name(s).                                     python3
+vid2aud            Extract audio track out of video file(s).                              python3, ffmpeg
+win2utf            Transform file(s) with win-1250 encoding to UTF8.                      BASH
+=================  =====================================================================  ================
 
 Installation
 ------------
@@ -39,7 +40,7 @@ UNIX-like systems
 .. code:: bash
 
   $ mkdir ~/bin
-  $ cp -r lang lang-templates norm today vid2aud win2utf ~/bin
+  $ cp -r lang lang-templates norm suffix_remover today vid2aud win2utf ~/bin
   
 * add ``~bin/`` to the ``PATH`` variable (in the ``.bashrc`` file)
 
@@ -116,6 +117,52 @@ example
   ├── Déjà.vu.file
   └── dir
       └── HELLO.WORLD
+
+
+suffix_remover
+++++++++++++++
+
+Remove all relative link's  {html,htm,php} suffix from passed web files ``FILE(s)`` or stdin.
+
+With no FILE passed, stdin and stdout is used.
+Note that if some FILE(s) are passed, in place processing is done.
+
+
+synopsis
+^^^^^^^^
+``suffix_remover [FILE1] [FILE2 ...]``
+
+example
+^^^^^^^
+
+.. code:: bash
+
+  $ cat file1
+  <a href="http://www.example.com/index.php">link</a>
+  <a href="article/hello-world.php">link</a>
+  <a href="/">link</a><a href="index.php">link</a>
+  <a href=/index.htm>link</a><a href=/home/index.html>link</a>
+
+.. code:: bash
+
+  $ suffix_remover file1
+
+.. code:: bash
+
+  $ cat file1
+  <a href="http://www.example.com/index.php">link</a>
+  <a href="article/hello-world">link</a>
+  <a href="/">link</a><a href="/">link</a>
+  <a href=/>link</a><a href=/home/>link</a>
+
+Use case
+^^^^^^^^
+You're developing your web without an URL rewriting module (like ``Apache``'s ``mod_rewrite``)
+and afterwards you will be uploading the web to a webserver with a URL rewriting module
+(so that the files won't have html/htm/php suffix in an url).
+
+This way you can use a classic relative web links (with a suffix) during development of your web
+and before uploading just use this script to strip all {html,htm,php} suffixes.
 
 today
 +++++
