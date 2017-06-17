@@ -72,7 +72,7 @@ def refine_file_name(path, opts):
 		raise Exception('Destination file name "' + new_path +
 						'" already exists. Skipping the file.')
 	else:
-		print('"', path, '" ::: "', new_path, '". ', sep='', end='')
+		print('"', path, '" ::: "', new_path, '". ', sep='', end='', flush=True)
 	if not opts.force:
 		get_confirmation()
 	print('Done.', file=sys.stderr, flush=True)
