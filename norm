@@ -32,7 +32,7 @@ def parse_argv():
 				 help="disable uppercase to lowercase transformation")
 	p.add_option("-s", action="count", dest="stripping", default=0,
 				 help="disable stripping of leading/trailling whitespace"
-				 + "and removal of redundant whitespace occurences")
+				 + " and removal of redundant whitespace occurences")
 	p.add_option("-w", action="count", dest="whitespace", default=0,
 				 help="disable substitution of whitespace for dots")
 	p.add_option("-r", "--recursive", action="count", dest="recursive", default=0,
